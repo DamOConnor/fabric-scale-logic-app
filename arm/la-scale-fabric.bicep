@@ -51,7 +51,7 @@ resource workflows_la_scale_fabgenerakuks_name_resource 'Microsoft.Logic/workflo
             method: 'PATCH'
             body: {
               sku: {
-                name: 'F4'
+                name: 'F2'
                 tier: 'Fabric'
               }
             }
