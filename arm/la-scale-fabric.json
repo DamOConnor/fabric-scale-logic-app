@@ -62,7 +62,7 @@
                                 "method": "PATCH",
                                 "body": {
                                     "sku": {
-                                        "name": "F4",
+                                        "name": "F2",
                                         "tier": "Fabric"
                                     }
                                 },

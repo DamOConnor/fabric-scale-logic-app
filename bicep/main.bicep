@@ -2,35 +2,26 @@
 
 targetScope = 'subscription'
 
-@description('The admin email - used in the authorisation for the Logic App')
-param adminEmail string
-
-@description('Unique guid - to help make resource names (like Fabric Capacity names) unique')
-param guid string = newGuid()
-var uniqueSuffix = toLower(substring(guid, 0, 5))
+// Parameters
 
 @description('The location for all resources deployed in this template')
 param location string
 
-//@description('The core name that will be used for resources')
-//param prefix string = 'general'
+// Yes these are coupled; could split out
+@description('The Resource Group for the Fabric Capacity and Logic App')
+param resourceGroupName string  
 
-//@description('The text that will be suffixed to the end of resource names')
-//param postfix string = 'uks'
+@description('The name of the Microsoft Fabric capacity resource to update.')
+param fabricCapacityName string
+
+@description('The subscription ID where the Fabric capacity exists.')
+param subscriptionId string = subscription().subscriptionId
 
 @description('The Fabric F-SKU size, eg F2, F64 etc')
 param sku string = 'F2'
 
-// Helper variables for resource names
-//var baseName = '${prefix}-${postfix}${uniqueSuffix}'
-//var resourceGroupName = 'rg-${baseName}'
-//var safeBaseName = '${prefix}${postfix}'
-
-// How to create eg rg-fabric-suyi5, fabsuyi5, la-pause-fabsuyi5 ?
-var baseName = '${uniqueSuffix}'
-var resourceGroupName = 'rg-fabric-${uniqueSuffix}'
-var fabricCapacityName = 'fab${baseName}'
-var logicAppName = 'la-pause-fab${baseName}'
+// Variables
+var logicAppName = 'la-scale-${fabricCapacityName}'
 
 
 // Resource group
@@ -40,33 +31,21 @@ resource rg_res 'Microsoft.Resources/resourceGroups@2022-09-01' = {
   location: location
 }
 
-// ARM API Connection
-
-module arm_mod './arm.bicep' = {
-  name: 'arm'
-  scope: resourceGroup(rg_res.name)
-  params: {
-    adminEmail: adminEmail
-    location: location
-    subscriptionId: subscription().subscriptionId
-    tenantId: subscription().tenantId   
-  }
-}
-
 
 // Logic App
 
-module logicApp_mod './logic_app.bicep' = {
+module logicApp './la-scale-fabric.bicep' = {
   name: 'logicApp'
   scope: resourceGroup(rg_res.name)
   params: {
-    fabricCapacityName: fabricCapacityName
     location: location
-    logicAppName: logicAppName
     resourceGroupName: resourceGroupName
-    subscriptionId: subscription().subscriptionId
+    fabricCapacityName: fabricCapacityName
+    subscriptionId: subscriptionId
+    sku: sku
+    logicAppName: logicAppName
   }
-  dependsOn: [
-    arm_mod
+  dependsOn: [    
   ]
 }
+
