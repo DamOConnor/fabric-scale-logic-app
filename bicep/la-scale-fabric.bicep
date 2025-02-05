@@ -100,24 +100,30 @@ resource logicApp  'Microsoft.Logic/workflows@2017-07-01' = {
 output logicAppPrincipalId string = logicApp.identity.principalId
 
 
+/////////////////////////////////////////////////////
+//resource logicAppStorageAccountRoleAssignment 'Microsoft.Authorization/roleAssignments@2020-10-01-preview' = {
+//  scope: storageAccount
+//  name: guid('ra-logicapp-${roleDefinitionId}')
+//  properties: {
+//    principalType: 'ServicePrincipal'
+//    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', roleDefinitionId)
+//    principalId: logicapp.identity.principalId
+//  }
+//}
+/////////////////////////////////////////////////////
+
+// Get the fabric capacity resource ID.
+output fabricCapacityResourceId string = resourceId(resourceGroupName, 'Microsoft.Fabric/capacities', fabricCapacityName)
 
 
 
-
-/////////////////////////////////////////
-
-
-// Grant the Logic App's managed identity Contributor access to the Fabric Capacity resource.
-// The built-in Contributor role has the following role definition ID.
+// Grant the Logic App's managed identity Contributor access to the Resource Group.
 var contributorRoleId = 'b24988ac-6180-42a0-ab88-20f7382dd24c'
 
-resource fabricCapacityRoleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
-  // Create a deterministic GUID for the role assignment using the Logic App's principal ID, the Fabric capacity name, and the role definition ID.
-  name: guid(logicApp.outputs.logicAppPrincipalId, fabricCapacityName, contributorRoleId)
-  // Set the scope to the Fabric Capacity resource.
-  scope: resourceId(resourceGroupName, 'Microsoft.Fabric/capacities', fabricCapacityName)
+resource resourceGroupRoleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+  name: guid(logicApp.id, resourceGroupName, contributorRoleId)
   properties: {
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', contributorRoleId)
-    principalId: logicApp.outputs.logicAppPrincipalId
+    principalId: logicApp.identity.principalId
   }
 }
