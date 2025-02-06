@@ -97,10 +97,13 @@ resource logicApp  'Microsoft.Logic/workflows@2019-05-01' = {
 }
 
 // Output the Logic App's principal ID so that it can be used for role assignments.
-output logicAppPrincipalId string = logicApp.identity.principalId
+//output logicAppPrincipalId string = logicApp.identity.principalId
+
 
 // Get the fabric capacity resource ID.
-output fabricCapacityResourceId string = resourceId(resourceGroupName, 'Microsoft.Fabric/capacities', fabricCapacityName)
+//output fabricCapacityResourceId string = resourceId(resourceGroupName, 'Microsoft.Fabric/capacities', fabricCapacityName)
+
+
 
 // Grant the Logic App's managed identity Contributor access to the Resource Group.
 var contributorRoleId = 'b24988ac-6180-42a0-ab88-20f7382dd24c'

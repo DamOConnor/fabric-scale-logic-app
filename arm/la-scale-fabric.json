@@ -1,91 +1,146 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-        "workflows_la_scale_fabgenerakuks_name": {
-            "defaultValue": "la-scale-fabgenerakuks",
-            "type": "String"
-        }
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.29.47.4906",
+      "templateHash": "807952272960452287"
+    }
+  },
+  "parameters": {
+    "location": {
+      "type": "string",
+      "metadata": {
+        "description": "The location for all resources deployed in this template"
+      }
     },
-    "variables": {},
-    "resources": [
-        {
-            "type": "Microsoft.Logic/workflows",
-            "apiVersion": "2017-07-01",
-            "name": "[parameters('workflows_la_scale_fabgenerakuks_name')]",
-            "location": "uksouth",
-            "identity": {
-                "type": "SystemAssigned"
-            },
-            "properties": {
-                "state": "Enabled",
-                "definition": {
-                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
-                    "contentVersion": "1.0.0.0",
-                    "parameters": {
-                        "$connections": {
-                            "defaultValue": {},
-                            "type": "Object"
-                        }
-                    },
-                    "triggers": {
-                        "Recurrence": {
-                            "recurrence": {
-                                "frequency": "Day",
-                                "interval": 1,
-                                "schedule": {
-                                    "hours": [
-                                        "21"
-                                    ]
-                                },
-                                "timeZone": "GMT Standard Time"
-                            },
-                            "evaluatedRecurrence": {
-                                "frequency": "Day",
-                                "interval": 1,
-                                "schedule": {
-                                    "hours": [
-                                        "21"
-                                    ]
-                                },
-                                "timeZone": "GMT Standard Time"
-                            },
-                            "type": "Recurrence"
-                        }
-                    },
-                    "actions": {
-                        "HTTP_Scale_Fabric_Capacity": {
-                            "runAfter": {},
-                            "type": "Http",
-                            "inputs": {
-                                "uri": "https://management.azure.com/subscriptions/cf3f51fa-8bf4-45d2-9fe4-edee281ccdb4/resourceGroups/rg-general-uks/providers/Microsoft.Fabric/capacities/fabgeneraluks?api-version=2023-11-01",
-                                "method": "PATCH",
-                                "body": {
-                                    "sku": {
-                                        "name": "F2",
-                                        "tier": "Fabric"
-                                    }
-                                },
-                                "authentication": {
-                                    "type": "ManagedServiceIdentity",
-                                    "audience": "https://management.azure.com"
-                                }
-                            },
-                            "runtimeConfiguration": {
-                                "contentTransfer": {
-                                    "transferMode": "Chunked"
-                                }
-                            }
-                        }
-                    },
-                    "outputs": {}
-                },
-                "parameters": {
-                    "$connections": {
-                        "value": {}
-                    }
-                }
+    "resourceGroupName": {
+      "type": "string",
+      "metadata": {
+        "description": "The Resource Group for the Fabric Capacity and Logic App"
+      }
+    },
+    "fabricCapacityName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the Microsoft Fabric capacity resource to update."
+      }
+    },
+    "subscriptionId": {
+      "type": "string",
+      "defaultValue": "[subscription().subscriptionId]",
+      "metadata": {
+        "description": "The subscription ID where the Fabric capacity exists."
+      }
+    },
+    "sku": {
+      "type": "string",
+      "defaultValue": "F2",
+      "metadata": {
+        "description": "The Fabric F-SKU size, eg F2, F64 etc"
+      }
+    },
+    "logicAppName": {
+      "type": "string",
+      "metadata": {
+        "description": "The Logic App name (based on the Fabric Capacity name)"
+      }
+    }
+  },
+  "variables": {
+    "contributorRoleId": "b24988ac-6180-42a0-ab88-20f7382dd24c"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2019-05-01",
+      "name": "[parameters('logicAppName')]",
+      "location": "[parameters('location')]",
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {
+        "state": "Enabled",
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "$connections": {
+              "defaultValue": {},
+              "type": "Object"
             }
+          },
+          "triggers": {
+            "Recurrence": {
+              "recurrence": {
+                "frequency": "Day",
+                "interval": 1,
+                "schedule": {
+                  "hours": [
+                    "21"
+                  ]
+                },
+                "timeZone": "GMT Standard Time"
+              },
+              "evaluatedRecurrence": {
+                "frequency": "Day",
+                "interval": 1,
+                "schedule": {
+                  "hours": [
+                    "21"
+                  ]
+                },
+                "timeZone": "GMT Standard Time"
+              },
+              "type": "Recurrence"
+            }
+          },
+          "actions": {
+            "HTTP_Scale_Fabric_Capacity": {
+              "runAfter": {},
+              "type": "Http",
+              "inputs": {
+                "uri": "[format('https://management.azure.com/subscriptions/{0}/resourceGroups/{1}/providers/Microsoft.Fabric/capacities/{2}?api-version=2023-11-01', parameters('subscriptionId'), parameters('resourceGroupName'), parameters('fabricCapacityName'))]",
+                "method": "PATCH",
+                "body": {
+                  "sku": {
+                    "name": "[parameters('sku')]",
+                    "tier": "Fabric"
+                  }
+                },
+                "authentication": {
+                  "type": "ManagedServiceIdentity",
+                  "audience": "https://management.azure.com"
+                }
+              },
+              "runtimeConfiguration": {
+                "contentTransfer": {
+                  "transferMode": "Chunked"
+                }
+              }
+            }
+          },
+          "outputs": {}
+        },
+        "parameters": {
+          "$connections": {
+            "value": {}
+          }
         }
-    ]
+      }
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2020-04-01-preview",
+      "name": "[guid(resourceId('Microsoft.Logic/workflows', parameters('logicAppName')), parameters('resourceGroupName'), variables('contributorRoleId'))]",
+      "properties": {
+        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', variables('contributorRoleId'))]",
+        "principalId": "[reference(resourceId('Microsoft.Logic/workflows', parameters('logicAppName')), '2019-05-01', 'full').identity.principalId]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Logic/workflows', parameters('logicAppName'))]"
+      ]
+    }
+  ]
 }
