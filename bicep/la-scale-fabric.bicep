@@ -19,7 +19,7 @@ param sku string = 'F2'
 param logicAppName string
 
 
-resource logicApp  'Microsoft.Logic/workflows@2017-07-01' = {
+resource logicApp  'Microsoft.Logic/workflows@2019-05-01' = {
   name: logicAppName
   location: location
   identity: {
@@ -70,7 +70,7 @@ resource logicApp  'Microsoft.Logic/workflows@2017-07-01' = {
             method: 'PATCH'
             body: {
               sku: {
-                name: '${sku}'
+                name: sku
                 tier: 'Fabric'
               }
             }
@@ -97,11 +97,11 @@ resource logicApp  'Microsoft.Logic/workflows@2017-07-01' = {
 }
 
 // Output the Logic App's principal ID so that it can be used for role assignments.
-output logicAppPrincipalId string = logicApp.identity.principalId
+//output logicAppPrincipalId string = logicApp.identity.principalId
 
 
 // Get the fabric capacity resource ID.
-output fabricCapacityResourceId string = resourceId(resourceGroupName, 'Microsoft.Fabric/capacities', fabricCapacityName)
+//output fabricCapacityResourceId string = resourceId(resourceGroupName, 'Microsoft.Fabric/capacities', fabricCapacityName)
 
 
 
