@@ -6,5 +6,4 @@
 
 ## Introduction
 
-This repo will create a resource group, a **Logic App** to scale the Fabric Capacity in the UK South region.  Fabric SKU and region can be altered in the Bicep if required.
-
+This repo will create a resource group and Logic App to scale the given Fabric Capacity in a given region.  Fabric SKU and can be altered in the Bicep if required.  Region is parameterised along with resource group name, Fabric Capacity name.
