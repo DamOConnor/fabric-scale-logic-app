@@ -100,18 +100,6 @@ resource logicApp  'Microsoft.Logic/workflows@2017-07-01' = {
 output logicAppPrincipalId string = logicApp.identity.principalId
 
 
-/////////////////////////////////////////////////////
-//resource logicAppStorageAccountRoleAssignment 'Microsoft.Authorization/roleAssignments@2020-10-01-preview' = {
-//  scope: storageAccount
-//  name: guid('ra-logicapp-${roleDefinitionId}')
-//  properties: {
-//    principalType: 'ServicePrincipal'
-//    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', roleDefinitionId)
-//    principalId: logicapp.identity.principalId
-//  }
-//}
-/////////////////////////////////////////////////////
-
 // Get the fabric capacity resource ID.
 output fabricCapacityResourceId string = resourceId(resourceGroupName, 'Microsoft.Fabric/capacities', fabricCapacityName)
 
