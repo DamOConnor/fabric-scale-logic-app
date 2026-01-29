@@ -105,10 +105,11 @@ output fabricCapacityResourceId string = resourceId(resourceGroupName, 'Microsof
 // Grant the Logic App's managed identity Contributor access to the Resource Group.
 var contributorRoleId = 'b24988ac-6180-42a0-ab88-20f7382dd24c'
 
-resource resourceGroupRoleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+resource resourceGroupRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   name: guid(logicApp.id, resourceGroupName, contributorRoleId)
   properties: {
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', contributorRoleId)
     principalId: logicApp.identity.principalId
+    principalType: 'ServicePrincipal'
   }
 }
